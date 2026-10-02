@@ -378,4 +378,384 @@
                         <i id="climate-icon" class="fa-solid fa-cloud-sun text-2xl"></i>
                     </div>
                     <div>
+                        <h3 id="climate-title" class="font-bold text-white text-sm sm:text-<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaMagdalena Pro - Modo Oscuro & Luces LED Cyber-Hydro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- MathJax Config & Script -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        caribe: {
+                            50: '#F0F9FF',
+                            100: '#E0F2FE',
+                            500: '#028090',
+                            600: '#05668D',
+                            700: '#034057',
+                            emerald: '#2A9D8F',
+                            sand: '#F4A261',
+                            coral: '#E76F51',
+                            dark: '#030712'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #06b6d4; border-radius: 4px; box-shadow: 0 0 8px #06b6d4; }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(6, 182, 212, 0.05);
+        }
+        
+        .promenade-container {
+            position: relative;
+            background: linear-gradient(185deg, #020617 0%, #0f172a 60%, #1e1b4b 100%);
+            overflow: hidden;
+            border-bottom: 2px solid rgba(6, 182, 212, 0.5);
+            box-shadow: 0 4px 25px rgba(6, 182, 212, 0.3);
+        }
+
+        .tab-btn {
+            backdrop-filter: blur(8px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            background-color: rgba(6, 182, 212, 0.2);
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            color: #ffffff;
+            font-weight: 800;
+            border-color: #38bdf8;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* EFECTOS DE LUCES LED */
+        .led-border-cyan {
+            border: 1px solid rgba(6, 182, 212, 0.6);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.3), inset 0 0 10px rgba(6, 182, 212, 0.15);
+        }
+
+        .led-border-emerald {
+            border: 1px solid rgba(16, 185, 129, 0.6);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 10px rgba(16, 185, 129, 0.15);
+        }
+
+        .led-border-amber {
+            border: 1px solid rgba(245, 158, 11, 0.6);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3), inset 0 0 10px rgba(245, 158, 11, 0.15);
+        }
+
+        .led-border-rose {
+            border: 1px solid rgba(244, 63, 94, 0.6);
+            box-shadow: 0 0 15px rgba(244, 63, 94, 0.3), inset 0 0 10px rgba(244, 63, 94, 0.15);
+        }
+
+        .led-indicator {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .led-emerald {
+            background-color: #10b981;
+            box-shadow: 0 0 8px #10b981, 0 0 15px #10b981;
+            animation: pulse-led 2s infinite ease-in-out;
+        }
+
+        .led-rose {
+            background-color: #f43f5e;
+            box-shadow: 0 0 8px #f43f5e, 0 0 15px #f43f5e;
+            animation: pulse-led 1s infinite ease-in-out;
+        }
+
+        .led-amber {
+            background-color: #f59e0b;
+            box-shadow: 0 0 8px #f59e0b, 0 0 15px #f59e0b;
+            animation: pulse-led 1.8s infinite ease-in-out;
+        }
+
+        .led-cyan {
+            background-color: #06b6d4;
+            box-shadow: 0 0 8px #06b6d4, 0 0 15px #06b6d4;
+            animation: pulse-led 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-led {
+            0%, 100% { opacity: 1; filter: drop-shadow(0 0 10px currentColor); }
+            50% { opacity: 0.4; filter: drop-shadow(0 0 2px currentColor); }
+        }
+
+        .zone-path {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .zone-path:hover {
+            filter: brightness(1.4) drop-shadow(0 0 12px #06b6d4);
+            stroke-width: 3px;
+            stroke: #38bdf8;
+        }
+
+        @keyframes bounce-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-bounce-subtle {
+            animation: bounce-subtle 2.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(244, 63, 94, 0.4), inset 0 0 10px rgba(244, 63, 94, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(244, 63, 94, 0.8), inset 0 0 20px rgba(244, 63, 94, 0.4); }
+        }
+        .crisis-glow {
+            animation: pulse-glow 1.5s infinite ease-in-out;
+        }
+
+        /* LED Neon Glow for Buttons */
+        .btn-led-cyan {
+            background: rgba(6, 182, 212, 0.15);
+            border: 1px solid #06b6d4;
+            color: #67e8f9;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+            transition: all 0.2s ease;
+        }
+        .btn-led-cyan:hover {
+            background: #06b6d4;
+            color: #030712;
+            box-shadow: 0 0 20px #06b6d4, 0 0 30px rgba(6, 182, 212, 0.5);
+        }
+
+        .btn-led-emerald {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid #10b981;
+            color: #6ee7b7;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+            transition: all 0.2s ease;
+        }
+        .btn-led-emerald:hover {
+            background: #10b981;
+            color: #030712;
+            box-shadow: 0 0 20px #10b981, 0 0 30px rgba(16, 185, 129, 0.5);
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+
+    <header id="header-bar" class="promenade-container text-white shadow-2xl sticky top-0 z-40 no-print">
+        <!-- Canvas Animado de Fondo: Camellón Nocturno con Efecto Neón y Partículas -->
+        <canvas id="promenadeCanvas" class="absolute inset-0 w-full h-full pointer-events-none opacity-85"></canvas>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            
+            <!-- Logo, Título & Controles Ambientales LED -->
+            <div class="flex items-center space-x-3.5 bg-slate-950/80 p-2.5 px-4 rounded-2xl backdrop-blur-md border border-cyan-500/40 shadow-[0_0_20px_rgba(6,182,212,0.25)]">
+                <div class="bg-gradient-to-tr from-cyan-500 to-blue-600 p-2.5 rounded-xl text-slate-950 shadow-[0_0_15px_#06b6d4] transform hover:rotate-6 transition">
+                    <i class="fa-solid fa-water-waves text-2xl text-slate-950"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]">
+                            AquaMagdalena <span class="text-cyan-400 font-mono text-sm">LED</span>
+                        </h1>
+                        <span class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-[0_0_8px_#06b6d4]">
+                            SANTA MARTA
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 font-medium flex items-center gap-1.5">
+                        <span class="led-indicator led-cyan"></span>
+                        <span>Simulador Hídrico Cyber • Modo Oscuro Neon</span>
+                    </p>
+                </div>
+
+                <!-- Botones Rápidos: Sonido y Luces -->
+                <div class="flex items-center gap-1.5 ml-2 border-l border-cyan-500/30 pl-3">
+                    <button onclick="toggleAudio()" id="btn-audio" class="w-8 h-8 rounded-lg bg-slate-900 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/20 flex items-center justify-center text-xs transition shadow-[0_0_8px_rgba(6,182,212,0.2)]" title="Activar/Silenciar Efectos">
+                        <i id="icon-audio" class="fa-solid fa-volume-high"></i>
+                    </button>
+                    <button onclick="toggleNightMode()" id="btn-night" class="w-8 h-8 rounded-lg bg-slate-900 border border-amber-500/40 text-amber-300 hover:bg-amber-500/20 flex items-center justify-center text-xs transition shadow-[0_0_8px_rgba(245,158,11,0.2)]" title="Cambiar Tono de Luces LED">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </button>
+                    <button onclick="openGuideModal()" class="w-8 h-8 rounded-lg bg-cyan-500 text-slate-950 hover:bg-cyan-400 font-black flex items-center justify-center text-xs transition shadow-[0_0_12px_#06b6d4]" title="Ver Guía de Uso">
+                        <i class="fa-solid fa-circle-question"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navegación por Pestañas Estilo Menú Flotante Neon -->
+            <nav class="flex items-center space-x-1 sm:space-x-1.5 bg-slate-950/90 p-1.5 rounded-2xl border border-cyan-500/40 shadow-[0_0_25px_rgba(6,182,212,0.2)] backdrop-blur-lg">
+                <button onclick="switchTab('sim')" id="tab-btn-sim" class="tab-btn active px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl transition flex items-center gap-1.5 text-xs font-semibold">
+                    <i class="fa-solid fa-city text-sm"></i> <span>Simulador</span>
+                </button>
+                <button onclick="switchTab('math')" id="tab-btn-math" class="tab-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl transition flex items-center gap-1.5 text-xs font-semibold">
+                    <i class="fa-solid fa-square-root-variable text-sm"></i> <span>Matemáticas</span>
+                </button>
+                <button onclick="switchTab('exam')" id="tab-btn-exam" class="tab-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl transition flex items-center gap-1.5 text-xs font-semibold">
+                    <i class="fa-solid fa-graduation-cap text-sm"></i> <span>Evaluador</span>
+                </button>
+                <button onclick="switchTab('ia')" id="tab-btn-ia" class="tab-btn px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl transition flex items-center gap-1.5 text-xs font-semibold">
+                    <i class="fa-solid fa-robot text-sm"></i> <span>Prompts IA</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <div id="guide-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden transition-opacity duration-300">
+        <div class="bg-slate-900 rounded-3xl max-w-2xl w-full shadow-[0_0_50px_rgba(6,182,212,0.3)] border border-cyan-500/40 overflow-hidden flex flex-col max-h-[90vh] text-slate-200">
+            <!-- Encabezado Modal -->
+            <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-5 text-white border-b border-cyan-500/30 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-cyan-500/20 border border-cyan-400/40 rounded-2xl shadow-[0_0_12px_#06b6d4]">
+                        <i class="fa-solid fa-compass-drafting text-2xl text-cyan-300"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black tracking-tight text-white flex items-center gap-2">
+                            <span>Guía de Uso: Modo Cyber-Hydro</span>
+                            <span class="led-indicator led-emerald"></span>
+                        </h2>
+                        <p class="text-xs text-cyan-200">Manual interactivo de usuario en modo oscuro con LED</p>
+                    </div>
+                </div>
+                <button onclick="closeGuideModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-rose-500/30 text-slate-300 hover:text-rose-400 border border-slate-700 flex items-center justify-center text-sm transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Cuerpo de la Guía -->
+            <div class="p-6 overflow-y-auto space-y-6 text-xs text-slate-300 leading-relaxed">
+                
+                <div class="flex gap-4 items-start bg-slate-950/80 p-4 rounded-2xl border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+                    <div class="p-3 bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 rounded-xl text-xl flex-shrink-0 shadow-[0_0_10px_#06b6d4]">
+                        <i class="fa-solid fa-flag-checkered"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-cyan-300 text-sm mb-1">1. Misión de Gestión Hídrica</h3>
+                        <p>
+                            Administra el suministro de agua para las 6 comunas de Santa Marta sin agotar la reserva de la Sierra Nevada ni permitir que la aprobación caiga.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-cyan-400"></i> 2. Sliders e Luces LED de Alerta
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-mono text-[11px]">
+                        <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
+                            <strong class="text-cyan-400 block">Mantenimiento ($K$):</strong>
+                            Reduce pérdidas por fuga. Luces LED cambiarán a verde al optimizarse.
+                        </div>
+                        <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
+                            <strong class="text-cyan-400 block">Bombeo Pozos ($Q_p$):</strong>
+                            Extrae agua subterránea calculando la tarifa lineal de energía.
+                        </div>
+                        <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
+                            <strong class="text-cyan-400 block">Racionamiento:</strong>
+                            Controla el consumo en sequía pero disminuye la satisfacción popular.
+                        </div>
+                        <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
+                            <strong class="text-cyan-400 block">Megaproyectos:</strong>
+                            Construye la Desalinizadora o Trasvase con presupuesto estatal.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-amber-950/30 border border-amber-500/30 rounded-2xl flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-trophy text-amber-400 text-2xl drop-shadow-[0_0_8px_#f59e0b]"></i>
+                        <div>
+                            <h4 class="font-bold text-amber-200 text-xs">Medallas e Insignias Neón</h4>
+                            <p class="text-[11px] text-amber-400/80">Desbloquea los 5 logros del simulador para acreditar la Fase 3.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="bg-slate-950 p-4 border-t border-slate-800 flex justify-end">
+                <button onclick="closeGuideModal()" class="btn-led-cyan px-6 py-2.5 font-bold text-xs rounded-xl flex items-center gap-2">
+                    <i class="fa-solid fa-thumbs-up"></i> <span>¡Comenzar Simulación!</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+
+        <!-- ==================== PESTAÑA 1: SIMULADOR HÍDRICO GLOBAL ==================== -->
+        <div id="tab-sim" class="tab-content space-y-6">
+            
+            <!-- BANNER DE EVENTOS / CRISIS HÍDRICA DINÁMICA CON LUZ LED INTERMITENTE -->
+            <div id="event-alert" class="hidden glass-card rounded-2xl p-4 border-l-8 border-l-rose-500 bg-rose-950/40 crisis-glow transition-all flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 bg-rose-600/30 border border-rose-500 rounded-xl text-rose-400 animate-bounce shadow-[0_0_15px_#f43f5e]">
+                        <i id="event-icon" class="fa-solid fa-triangle-exclamation text-xl"></i>
+                    </div>
+                    <div>
+                        <span id="event-tag" class="text-[10px] font-extrabold uppercase tracking-widest text-rose-400 flex items-center gap-1.5">
+                            <span class="led-indicator led-rose"></span> ¡ALERTA CLIMÁTICA CRÍTICA!
+                        </span>
+                        <h4 id="event-title" class="font-black text-white text-sm">Sequía Extrema en la Sierra Nevada</h4>
+                        <p id="event-desc" class="text-xs text-slate-300">El caudal de los ríos Manzanares y Gaira ha caído un 35%. La demanda ciudadana se dispara.</p>
+                    </div>
+                </div>
+                <button onclick="dismissEvent()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-[0_0_12px_#f43f5e] transition flex-shrink-0">
+                    Atender Crisis
+                </button>
+            </div>
+
+            <!-- Barra de Control del Tiempo y Estado Climatológico LED -->
+            <div id="climate-banner" class="glass-card rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 led-border-cyan">
+                <div class="flex items-center space-x-4">
+                    <div id="climate-icon-bg" class="p-3 bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 rounded-xl transition-all shadow-[0_0_12px_#06b6d4]">
+                        <i id="climate-icon" class="fa-solid fa-cloud-sun text-2xl"></i>
+                    </div>
+                    <div>
                         <h3 id="climate-title" class="font-bold text-white text-sm sm:text-
