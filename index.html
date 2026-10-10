@@ -1,322 +1,583 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador 3D Interactivo: Pérdida de Agua Potable en Santa Marta</title>
-
-    <!-- Tailwind CSS -->
+    <title>AquaSim 3D - Tratamiento y Reúso de Aguas Residuales</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brand: {
+                        water: {
                             50: '#f0f9ff',
+                            100: '#e0f2fe',
                             500: '#0ea5e9',
                             600: '#0284c7',
-                            900: '#0c4a6e',
+                            900: '#0369a1',
                         }
                     }
                 }
             }
         }
     </script>
-
-    <!-- Google Fonts & Font Awesome Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- CDNs for Three.js, OrbitControls & Chart.js -->
+    <!-- Three.js y OrbitControls CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- KaTeX for mathematical formulas rendering -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-        }
-        
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(56, 189, 248, 0.3);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(56, 189, 248, 0.6);
-        }
-
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.88);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(56, 189, 248, 0.18);
-        }
-
-        .glass-card {
-            background: rgba(30, 41, 59, 0.65);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
+        body { font-family: 'Inter', sans-serif; }
+        canvas { display: block; width: 100%; height: 100%; }
         @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.3); }
-            50% { box-shadow: 0 0 28px rgba(239, 68, 68, 0.7); }
+            0%, 100% { box-shadow: 0 0 15px rgba(14, 165, 233, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(14, 165, 233, 0.5); }
         }
-        .alert-glow {
-            animation: pulseGlow 2s infinite;
-        }
-
-        .action-btn {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .action-btn:hover {
-            transform: translateY(-1px);
-        }
-        .action-btn:active {
-            transform: translateY(1px);
-        }
+        .glow-effect { animation: pulseGlow 3s infinite ease-in-out; }
     </style>
 </head>
-<body class="h-full flex flex-col select-none bg-slate-950 text-slate-100">
+<body class="bg-slate-100 text-slate-800 antialiased overflow-x-hidden transition-colors duration-300">
 
-    <!-- Top Navigation Header -->
-    <header class="h-16 glass-panel border-b border-slate-800 px-4 md:px-6 flex items-center justify-between z-30 shrink-0">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <i class="fa-solid fa-droplet text-white text-xl"></i>
+    <!-- Header Principal -->
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-white/90 border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-droplet text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">AquaSim 3D Pro</h1>
+                    <p class="text-xs text-slate-500 font-medium">Línea de Investigación: Tratamiento y Reúso de Aguas</p>
+                </div>
             </div>
-            <div>
-                <h1 class="font-bold text-base md:text-lg text-slate-100 flex items-center gap-2">
-                    HydroSMART Santa Marta
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-                        Investigación 3D Interactiva
-                    </span>
-                </h1>
-                <p class="text-xs text-slate-400 hidden sm:block">Simulador de Pérdida de Agua Potable & Impacto Turístico</p>
+            <div class="flex items-center space-x-3">
+                <button onclick="openInfoModal()" class="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white shadow-md shadow-cyan-600/20 transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Guía Científica</span>
+                </button>
             </div>
-        </div>
-
-        <!-- Scenario Quick Switches & Modals -->
-        <div class="flex items-center space-x-2 md:space-x-3">
-            <div class="hidden lg:flex items-center space-x-1 bg-slate-900/90 p-1 rounded-lg border border-slate-800 text-xs">
-                <span class="text-slate-400 px-2 font-medium">Escenarios:</span>
-                <button onclick="loadScenario('baseline')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 transition">Baja Temporada</button>
-                <button onclick="loadScenario('peak')" class="px-2.5 py-1 rounded bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 border border-amber-500/30 transition">Temporada Alta</button>
-                <button onclick="loadScenario('critical')" class="px-2.5 py-1 rounded bg-rose-600/30 hover:bg-rose-600/50 text-rose-300 border border-rose-500/30 transition">Crisis Hídrica</button>
-            </div>
-
-            <button onclick="toggleModal('canvasModal')" class="action-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 flex items-center gap-1.5">
-                <i class="fa-solid fa-clipboard-list text-cyan-400"></i>
-                <span class="hidden sm:inline">Proyecto</span>
-            </button>
-
-            <button onclick="toggleModal('reportModal')" class="action-btn px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-md shadow-cyan-600/30 flex items-center gap-1.5">
-                <i class="fa-solid fa-file-pdf"></i>
-                <span class="hidden sm:inline">Exportar Informe</span>
-            </button>
         </div>
     </header>
 
-    <!-- Main Content Workspace -->
-    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
-
-        <!-- 3D Canvas Viewport Container -->
-        <div id="canvasContainer" class="flex-1 relative bg-slate-950 min-h-[380px] lg:min-h-0 cursor-grab active:cursor-grabbing">
+    <!-- Contenido Principal -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Panel Izquierdo: Controles Operativos e Indicadores -->
+        <section class="lg:col-span-4 space-y-6">
             
-            <!-- Three.js Canvas Element attaches here -->
+            <!-- Panel de Operación -->
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-semibold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-solid fa-sliders text-cyan-600"></i>
+                        <span>Panel de Operación</span>
+                    </h2>
+                    <span class="px-2.5 py-0.5 text-[10px] uppercase tracking-wider font-bold rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">Sistema Activo</span>
+                </div>
+
+                <!-- Botón Principal Flujo -->
+                <div class="mb-5">
+                    <button id="flowToggleBtn" onclick="toggleFlow()" class="w-full py-3 px-4 rounded-xl font-semibold bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-lg shadow-cyan-600/20 transition flex items-center justify-center space-x-2">
+                        <i id="flowIcon" class="fa-solid fa-pause"></i>
+                        <span id="flowText">Pausar Simulación</span>
+                    </button>
+                </div>
+
+                <!-- Sliders de Operación -->
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                            <span>Caudal de Entrada (Q)</span>
+                            <span id="flowRateVal" class="text-cyan-600 font-bold">50 L/s</span>
+                        </div>
+                        <input type="range" id="flowRateSlider" min="10" max="100" value="50" oninput="updateParameters()" class="w-full accent-cyan-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                            <span>Eficiencia de Aireación (Secundario)</span>
+                            <span id="aerationVal" class="text-cyan-600 font-bold">85 %</span>
+                        </div>
+                        <input type="range" id="aerationSlider" min="30" max="100" value="85" oninput="updateParameters()" class="w-full accent-cyan-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                            <span>Dosis Desinfectante UV/Cloro</span>
+                            <span id="disinfectantVal" class="text-cyan-600 font-bold">4.0 mg/L</span>
+                        </div>
+                        <input type="range" id="disinfectantSlider" min="1" max="10" value="4" step="0.5" oninput="updateParameters()" class="w-full accent-cyan-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicadores de Calidad del Agua -->
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm">
+                <h2 class="font-semibold text-slate-800 mb-4 flex items-center space-x-2">
+                    <i class="fa-solid fa-chart-line text-cyan-600"></i>
+                    <span>Indicadores de Calidad del Agua</span>
+                </h2>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/60">
+                        <span class="text-[11px] text-slate-500 font-medium block">DBO5 Entrada</span>
+                        <span class="text-lg font-bold text-amber-600">350 <span class="text-xs font-normal text-slate-400">mg/L</span></span>
+                    </div>
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/60">
+                        <span class="text-[11px] text-slate-500 font-medium block">DBO5 Salida</span>
+                        <span id="dboOutVal" class="text-lg font-bold text-cyan-600">12 <span class="text-xs font-normal text-slate-400">mg/L</span></span>
+                    </div>
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/60">
+                        <span class="text-[11px] text-slate-500 font-medium block">Turbidez Salida</span>
+                        <span id="turbidityVal" class="text-lg font-bold text-cyan-600">1.8 <span class="text-xs font-normal text-slate-400">NTU</span></span>
+                    </div>
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/60">
+                        <span class="text-[11px] text-slate-500 font-medium block">Remoción Global</span>
+                        <span id="efficiencyVal" class="text-lg font-bold text-emerald-600">96.5 <span class="text-xs font-normal text-slate-400">%</span></span>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500 font-medium">
+                    <span>Demanda Energética Estimada:</span>
+                    <span id="energyVal" class="font-bold text-slate-800">45.2 kWh/m³</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Panel Derecho: Simulación 3D y Tarjeta de Estación -->
+        <section class="lg:col-span-8 flex flex-col space-y-6">
             
-            <!-- 3D Overlay Interactive Instruction Hint -->
-            <div class="absolute top-4 right-4 z-10 pointer-events-none hidden sm:block">
-                <div class="glass-panel px-3 py-1.5 rounded-lg text-[11px] text-cyan-300 border border-cyan-500/30 flex items-center gap-2 shadow-lg">
-                    <i class="fa-solid fa-hand-pointer animate-bounce text-cyan-400"></i>
-                    <span>Haz clic o rota con el mouse en el mapa 3D para interactuar</span>
+            <!-- Lienzo de Simulación 3D -->
+            <div class="relative w-full h-[450px] bg-slate-900 border border-slate-200 rounded-2xl overflow-hidden shadow-md group">
+                <div id="canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+                
+                <!-- Guía rápida flotante -->
+                <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 pointer-events-none flex items-center space-x-2 shadow-sm">
+                    <i class="fa-solid fa-cube text-cyan-600 animate-pulse"></i>
+                    <span>Arrastra para rotar • Scroll para zoom • Clic en estaciones</span>
+                </div>
+
+                <!-- Selector rápido de etapas flotante -->
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-3 py-2 rounded-xl border border-slate-200 flex items-center space-x-1.5 shadow-lg flex-wrap justify-center">
+                    <button onclick="focusStage(0)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 hover:bg-cyan-600 hover:text-white transition font-semibold text-slate-700">1. Pretratamiento</button>
+                    <button onclick="focusStage(1)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 hover:bg-cyan-600 hover:text-white transition font-semibold text-slate-700">2. Primario</button>
+                    <button onclick="focusStage(2)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 hover:bg-cyan-600 hover:text-white transition font-semibold text-slate-700">3. Secundario</button>
+                    <button onclick="focusStage(3)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 hover:bg-cyan-600 hover:text-white transition font-semibold text-slate-700">4. Terciario UV</button>
                 </div>
             </div>
 
-            <!-- 3D Layer Toggles HUD -->
-            <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                <div class="glass-panel p-3 rounded-xl shadow-xl border border-slate-800/80 max-w-xs">
-                    <div class="text-xs font-semibold text-slate-200 mb-2 flex items-center justify-between">
-                        <span><i class="fa-solid fa-layer-group text-cyan-400 mr-1.5"></i>Capas de Red 3D</span>
-                        <span class="text-[10px] text-emerald-400 font-mono">Activo</span>
+            <!-- Tarjeta Dinámica de la Estación Seleccionada -->
+            <div id="infoCard" class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm transition-all duration-300">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span id="stageBadge" class="px-2.5 py-0.5 text-xs font-semibold rounded-md bg-cyan-100 text-cyan-700 border border-cyan-200">Estación 1</span>
+                            <h3 id="stageTitle" class="text-lg font-bold text-slate-800">Pretratamiento (Desbaste y Desarenador)</h3>
+                        </div>
+                        <p id="stageDesc" class="text-sm text-slate-600 mt-2 leading-relaxed">
+                            Remoción inicial de sólidos flotantes de gran tamaño, arenas y gravas mediante rejas mecánicas y cámaras de sedimentación de arena. Evita daños en equipos posteriores y protege las bombas hidráulicas.
+                        </p>
                     </div>
-                    <div class="space-y-1.5 text-xs">
-                        <label class="flex items-center space-x-2 text-slate-300 cursor-pointer hover:text-white">
-                            <input type="checkbox" id="layerPipes" checked onchange="toggleLayer('pipes')" class="rounded border-slate-700 text-cyan-500 focus:ring-0 bg-slate-900">
-                            <span>Red Principal de Distribución</span>
-                        </label>
-                        <label class="flex items-center space-x-2 text-slate-300 cursor-pointer hover:text-white">
-                            <input type="checkbox" id="layerLeaks" checked onchange="toggleLayer('leaks')" class="rounded border-slate-700 text-rose-500 focus:ring-0 bg-slate-900">
-                            <span>Fugas Críticas Activas ($L$)</span>
-                        </label>
-                        <label class="flex items-center space-x-2 text-slate-300 cursor-pointer hover:text-white">
-                            <input type="checkbox" id="layerTourists" checked onchange="toggleLayer('tourists')" class="rounded border-slate-700 text-amber-500 focus:ring-0 bg-slate-900">
-                            <span>Complejos Hoteleros</span>
-                        </label>
+                    <div class="w-12 h-12 rounded-xl bg-cyan-100 border border-cyan-200 flex items-center justify-center text-cyan-600 shrink-0 ml-4">
+                        <i id="stageIcon" class="fa-solid fa-filter text-xl"></i>
+                    </div>
+                </div>
+
+                <div class="mt-5 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-cyan-600">
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400 block font-medium">Principio Físico / Químico</span>
+                            <span id="stagePrinciple" class="text-xs font-semibold text-slate-700">Separación mecánica por gravedad y tamaño de malla.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-cyan-600">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400 block font-medium">Eficiencia de Remoción Objetivo</span>
+                            <span id="stageEfficiency" class="text-xs font-semibold text-slate-700">10% - 15% DBO5 / 90% Sólidos Gruesos.</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 3D Direct Interactivity Toolbar -->
-            <div class="absolute bottom-4 left-4 z-10 flex flex-wrap items-center gap-2">
-                <span class="text-[11px] font-semibold text-slate-400 bg-slate-900/90 px-2.5 py-1.5 rounded-lg border border-slate-800 hidden md:inline">
-                    <i class="fa-solid fa-crosshairs text-cyan-400 mr-1"></i>Sectores:
-                </span>
-                <button onclick="focusSector('overview')" class="action-btn glass-panel px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 hover:text-cyan-400 border border-slate-700 hover:border-cyan-500/50">
-                    <i class="fa-solid fa-globe mr-1"></i>Vista General
-                </button>
-                <button onclick="focusSector('rodadero')" class="action-btn glass-panel px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 hover:text-amber-400 border border-slate-700 hover:border-amber-500/50">
-                    <i class="fa-solid fa-umbrella-beach mr-1 text-amber-400"></i>El Rodadero
-                </button>
-                <button onclick="focusSector('centro')" class="action-btn glass-panel px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 hover:text-cyan-400 border border-slate-700 hover:border-cyan-500/50">
-                    <i class="fa-solid fa-city mr-1 text-cyan-400"></i>Centro Histórico
-                </button>
-                <button onclick="focusSector('pozos')" class="action-btn glass-panel px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 hover:text-emerald-400 border border-slate-700 hover:border-emerald-500/50">
-                    <i class="fa-solid fa-hotel mr-1 text-emerald-400"></i>Bello Horizonte
-                </button>
-                <button onclick="focusSector('mamatoco')" class="action-btn glass-panel px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 hover:text-blue-400 border border-slate-700 hover:border-blue-500/50">
-                    <i class="fa-solid fa-industry mr-1 text-blue-400"></i>PTAP Mamatoco
-                </button>
-            </div>
+        </section>
 
-            <!-- Dynamic Interactive Inspector Tooltip -->
-            <div id="sectorTooltip" class="absolute hidden z-20 glass-panel p-3.5 rounded-xl border border-cyan-500/40 text-xs shadow-2xl transition-all duration-150 pointer-events-auto max-w-xs">
-                <div class="flex justify-between items-start mb-1.5">
-                    <div id="tooltipTitle" class="font-bold text-cyan-300 text-sm">Sector Seleccionado</div>
-                    <button onclick="hideTooltip()" class="text-slate-400 hover:text-white p-0.5"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div id="tooltipBody" class="text-slate-300 space-y-1 mb-2"></div>
-                <div id="tooltipActions" class="pt-2 border-t border-slate-800 flex gap-2"></div>
-            </div>
+    </main>
 
-            <!-- Loading Spinner -->
-            <div id="canvasLoader" class="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center z-30 transition-opacity duration-500">
-                <div class="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin mb-3"></div>
-                <p class="text-xs font-medium text-slate-400">Cargando Modelo Cartográfico 3D de Santa Marta...</p>
+    <!-- Modal de Guía Científica -->
+    <div id="infoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
+        <div class="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative mx-4">
+            <button onclick="closeInfoModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center space-x-2">
+                <i class="fa-solid fa-graduation-cap text-cyan-600"></i>
+                <span>Línea de Investigación: Tratamiento y Reúso de Aguas Residuales</span>
+            </h3>
+            <div class="space-y-3 text-sm text-slate-600 leading-relaxed max-h-[60vh] overflow-y-auto pr-2">
+                <p>
+                    Esta línea investigativa se enfoca en el desarrollo, optimización y evaluación de tecnologías avanzadas para la depuración de aguas residuales domésticas e industriales, transformándolas en un recurso hídrico seguro para el reúso agrícola, industrial o recreativo.
+                </p>
+                <h4 class="font-semibold text-cyan-600 mt-2">Pilares Tecnológicos Simulados:</h4>
+                <ul class="list-disc pl-5 space-y-1 text-slate-500">
+                    <li><strong class="text-slate-700">Pretratamiento:</strong> Retención de sólidos voluminosos y arenas.</li>
+                    <li><strong class="text-slate-700">Tratamiento Primario:</strong> Sedimentación primaria para reducción de sólidos suspendidos totales (SST).</li>
+                    <li><strong class="text-slate-700">Tratamiento Secundario:</strong> Procesos biológicos de lodos activados con aereación para degradación de materia orgánica disuelta (DBO5).</li>
+                    <li><strong class="text-slate-700">Tratamiento Terciario y Reúso:</strong> Filtración avanzada y desinfección UV/Cloro para cumplir normativas de reúso estricto.</li>
+                </ul>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeInfoModal()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-sm font-semibold transition shadow-md shadow-cyan-600/20">Entendido</button>
             </div>
         </div>
+    </div>
 
-        <!-- Right Sidebar Controls & Real-Time Analytics -->
-        <aside class="w-full lg:w-[440px] xl:w-[480px] glass-panel border-l border-slate-800 flex flex-col h-auto lg:h-full overflow-y-auto shrink-0 z-20">
+    <!-- Script principal de Three.js y Lógica Interactiva -->
+    <script>
+        const stagesData = [
+            {
+                title: "Estación 1: Pretratamiento (Desbaste y Desarenador)",
+                desc: "Remoción inicial de sólidos flotantes de gran tamaño, arenas y gravas mediante rejas mecánicas y cámaras de sedimentación de arena. Protege las bombas hidráulicas de daños por abrasión.",
+                principle: "Separación mecánica por gravedad y tamaño de malla.",
+                efficiency: "10% - 15% DBO5 / 90% Sólidos Gruesos.",
+                icon: "fa-filter"
+            },
+            {
+                title: "Estación 2: Tratamiento Primario (Sedimentador)",
+                desc: "Tanques de decantación donde el agua permanece a baja velocidad permitiendo que los sólidos en suspensión sedimenten por gravedad formando lodos primarios y las grasas floten.",
+                principle: "Decantación gravitacional de sólidos suspendidos.",
+                efficiency: "30% - 40% DBO5 / 50% SST.",
+                icon: "fa-water"
+            },
+            {
+                title: "Estación 3: Tratamiento Secundario (Reactor Biológico)",
+                desc: "Proceso de lodos activados con aereación dinámica. Microorganismos aerobios degradan la materia orgánica disuelta en presencia de oxígeno soplado artificialmente.",
+                principle: "Oxidación biológica aerobia y floculación bacteriana.",
+                efficiency: "85% - 95% DBO5 / 90% DQO.",
+                icon: "fa-atom"
+            },
+            {
+                title: "Estación 4: Tratamiento Terciario / Reúso UV",
+                desc: "Filtración multimedia avanzada y desinfección ultravioleta (UV) para eliminar patógenos remanentes y turbidez, dejando el agua apta para riego agrícola o procesos industriales.",
+                principle: "Filtración de precisión y desinfección fotolítica UV.",
+                efficiency: "99.9% de remoción de patógenos (Agua Cristalina).",
+                icon: "fa-seedling"
+            }
+        ];
+
+        let scene, camera, renderer, controls;
+        let tanks = [], particles = [], aerationBubbles = [], uvBeams = [];
+        let isFlowRunning = true;
+        let currentSelectedStage = 0;
+        let targetCamPos = new THREE.Vector3(0, 5, 14);
+        let targetLookAt = new THREE.Vector3(0, 0, 0);
+        let isAnimatingCamera = false;
+
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
             
-            <!-- Navigation Tabs for Sidebar -->
-            <div class="flex border-b border-slate-800 bg-slate-900/90 sticky top-0 z-10 text-[11px] font-semibold">
-                <button id="tabBtnControls" onclick="switchTab('controls')" class="flex-1 py-3 px-2 text-cyan-400 border-b-2 border-cyan-400 flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-sliders"></i> Variables
-                </button>
-                <button id="tabBtnActions" onclick="switchTab('actions')" class="flex-1 py-3 px-2 text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Acciones
-                </button>
-                <button id="tabBtnEquations" onclick="switchTab('equations')" class="flex-1 py-3 px-2 text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-square-root-variable text-indigo-400"></i> Fórmulas
-                </button>
-                <button id="tabBtnAnalytics" onclick="switchTab('analytics')" class="flex-1 py-3 px-2 text-slate-400 hover:text-slate-200 flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-chart-line text-emerald-400"></i> Analítica
-                </button>
-            </div>
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f172a); // Fondo oscuro elegante para resaltar iluminación 3D
+            scene.fog = new THREE.FogExp2(0x0f172a, 0.03);
 
-            <!-- TAB 1: Simulation Controls & Sliders -->
-            <div id="tabControls" class="p-4 md:p-5 space-y-4">
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 6, 14);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // OrbitControls para máxima interactividad
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 - 0.05; // No permitir pasar por debajo del suelo
+            controls.minDistance = 5;
+            controls.maxDistance = 25;
+
+            // Iluminación
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0x0ea5e9, 1.4);
+            dirLight.position.set(10, 20, 10);
+            scene.add(dirLight);
+
+            const pointLight = new THREE.PointLight(0x38bdf8, 1, 20);
+            pointLight.position.set(2, 4, 0);
+            scene.add(pointLight);
+
+            // Estructuras de las Estaciones 3D
+            const tankGeometry = new THREE.BoxGeometry(2.6, 1.8, 2.6);
+            const tankMaterial = new THREE.MeshStandardMaterial({
+                color: 0x334155,
+                roughness: 0.2,
+                metalness: 0.8,
+                transparent: true,
+                opacity: 0.9
+            });
+
+            const positions = [-6, -2, 2, 6];
+            const liquidColors = [0x854d0e, 0xa16207, 0x0284c7, 0x38bdf8];
+
+            positions.forEach((xPos, idx) => {
+                const tankGroup = new THREE.Group();
                 
-                <div class="bg-gradient-to-r from-cyan-950/60 to-slate-900 p-3.5 rounded-xl border border-cyan-500/25 flex items-center justify-between">
-                    <div>
-                        <span class="text-xs text-slate-400 block">Población Turística Volante</span>
-                        <span id="displayTouristCount" class="text-lg font-bold text-amber-400">144,300 hab.</span>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-xs text-slate-400 block">Ocupación Hotelera</span>
-                        <span id="displayHotelOccupancy" class="text-lg font-bold text-cyan-400">88%</span>
-                    </div>
-                </div>
+                // Tanque Base (Caja de vidrio/metal)
+                const mesh = new THREE.Mesh(tankGeometry, tankMaterial);
+                mesh.position.set(xPos, 0, 0);
+                mesh.userData = { id: idx };
+                tankGroup.add(mesh);
 
-                <!-- Parameter 1: Tourist Population Slider -->
-                <div class="glass-card p-3.5 rounded-xl space-y-2">
-                    <div class="flex justify-between items-center text-xs">
-                        <label for="sliderTourists" class="font-semibold text-slate-200 flex items-center gap-1.5">
-                            <i class="fa-solid fa-user-group text-amber-400"></i> Afluencia Turística
-                        </label>
-                        <span id="valTourists" class="font-mono text-cyan-400 font-bold">+85%</span>
-                    </div>
-                    <input type="range" id="sliderTourists" min="0" max="150" value="85" step="5" oninput="updateSimulation()" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500">
-                    <div class="flex justify-between text-[10px] text-slate-500 font-mono">
-                        <span>Baja (0%)</span>
-                        <span>Media (50%)</span>
-                        <span>Pico Max (150%)</span>
-                    </div>
-                </div>
+                // Líquido interior
+                const liquidGeo = new THREE.BoxGeometry(2.4, 1.2, 2.4);
+                const liquidMat = new THREE.MeshStandardMaterial({
+                    color: liquidColors[idx],
+                    roughness: 0.1,
+                    metalness: 0.2,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                const liquidMesh = new THREE.Mesh(liquidGeo, liquidMat);
+                liquidMesh.position.set(xPos, -0.2, 0);
+                tankGroup.add(liquidMesh);
 
-                <!-- Parameter 2: NRW / Leakage Level -->
-                <div class="glass-card p-3.5 rounded-xl space-y-2">
-                    <div class="flex justify-between items-center text-xs">
-                        <label for="sliderNRW" class="font-semibold text-slate-200 flex items-center gap-1.5">
-                            <i class="fa-solid fa-pipe-valve text-rose-400"></i> Agua No Contabilizada Base (ANC)
-                        </label>
-                        <span id="valNRW" class="font-mono text-rose-400 font-bold">52%</span>
-                    </div>
-                    <input type="range" id="sliderNRW" min="15" max="75" value="52" step="1" oninput="updateSimulation()" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500">
-                    <div class="flex justify-between text-[10px] text-slate-500 font-mono">
-                        <span>Óptimo (15%)</span>
-                        <span>Prom. Sta Marta (52%)</span>
-                        <span>Severo (75%)</span>
-                    </div>
-                </div>
+                // Anillo indicador superior brillante
+                const ringGeo = new THREE.RingGeometry(1.4, 1.55, 32);
+                const ringMat = new THREE.MeshBasicMaterial({ color: idx === 3 ? 0x38bdf8 : 0x0ea5e9, side: THREE.DoubleSide });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.rotation.x = Math.PI / 2;
+                ring.position.set(xPos, 1.1, 0);
+                tankGroup.add(ring);
 
-                <!-- Parameter 3: System Pressure PSI -->
-                <div class="glass-card p-3.5 rounded-xl space-y-2">
-                    <div class="flex justify-between items-center text-xs">
-                        <label for="sliderPressure" class="font-semibold text-slate-200 flex items-center gap-1.5">
-                            <i class="fa-solid fa-gauge-high text-indigo-400"></i> Presión de Bombeo en Red
-                        </label>
-                        <span id="valPressure" class="font-mono text-indigo-400 font-bold">42 PSI</span>
-                    </div>
-                    <input type="range" id="sliderPressure" min="15" max="65" value="42" step="1" oninput="updateSimulation()" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
-                    <div class="flex justify-between text-[10px] text-slate-500 font-mono">
-                        <span>Baja (15 PSI)</span>
-                        <span>Estándar (35 PSI)</span>
-                        <span>Sobrepresión (65 PSI)</span>
-                    </div>
-                </div>
+                scene.add(tankGroup);
+                tanks.push(mesh);
+            });
 
-                <!-- Parameter 4: Per Capita Consumption -->
-                <div class="glass-card p-3.5 rounded-xl space-y-2">
-                    <div class="flex justify-between items-center text-xs">
-                        <label for="sliderPerCapita" class="font-semibold text-slate-200 flex items-center gap-1.5">
-                            <i class="fa-solid fa-shower text-blue-400"></i> Consumo Turístico Per Cápita
-                        </label>
-                        <span id="valPerCapita" class="font-mono text-blue-400 font-bold">380 L/hab/día</span>
-                    </div>
-                    <input type="range" id="sliderPerCapita" min="150" max="600" value="380" step="10" oninput="updateSimulation()" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
-                    <div class="flex justify-between text-[10px] text-slate-500 font-mono">
-                        <span>Residencial (150L)</span>
-                        <span>Hotelero (380L)</span>
-                        <span>Resort (600L)</span>
-                    </div>
-                </div>
+            // Tuberías de conexión inter-tanques
+            const pipeMaterial = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 });
+            for (let i = 0; i < 3; i++) {
+                const pipeGeo = new THREE.CylinderGeometry(0.2, 0.2, 1.4, 16);
+                const pipe = new THREE.Mesh(pipeGeo, pipeMaterial);
+                pipe.rotation.z = Math.PI / 2;
+                pipe.position.set(-4 + i * 4, 0.2, 0);
+                scene.add(pipe);
+            }
 
-                <!-- Real-time Supply vs Demand Summary -->
-                <div class="pt-2 space-y-2">
-                    <h3 class="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center justify-between">
-                        <span>Balance Hídrico Instantáneo</span>
-                        <span id="statusIndicator" class="text-emerald-400 font-mono text-[10px] normal-case flex items-center gap-1">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Calculando
-                        </span>
-                    </h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="glass-card p-3 rounded-xl border border-emerald-500/30">
-                            <div class="text-[11px] text-slate-400">Oferta Disponible (Total)</div>
-                            <div id="statSupply" class="text-lg font-bold text-emerald-400 mt-0.5">1,250 L/s</div>
-                            <div class="text-[10px] text-slate-500">PTAP Mamatoco + Cisne</div>
-                        </div>
-                        <div class="glass-card p-3 rounded-xl border 
+            createParticles();
+            createAerationBubbles();
+            createUVBeams();
+
+            // Raycaster para clics en estaciones 3D
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            renderer.domElement.addEventListener('click', (event) => {
+                const rect = renderer.domElement.getBoundingClientRect();
+                mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
+                mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(tanks);
+
+                if (intersects.length > 0) {
+                    const clickedTankId = intersects[0].object.userData.id;
+                    focusStage(clickedTankId);
+                }
+            });
+
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        // Creación de Partículas de Agua fluyendo por las tuberías y tanques
+        function createParticles() {
+            const particleCount = 150;
+            const geometry = new THREE.SphereGeometry(0.08, 8, 8);
+            
+            for (let i = 0; i < particleCount; i++) {
+                const material = new THREE.MeshBasicMaterial({ color: 0x854d0e });
+                const particle = new THREE.Mesh(geometry, material);
+                resetParticle(particle);
+                scene.add(particle);
+                particles.push(particle);
+            }
+        }
+
+        function resetParticle(particle) {
+            particle.position.set(-7.5 + (Math.random() * 1.5), (Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 1.5);
+            particle.userData = {
+                progress: Math.random(),
+                speed: 0.007 + Math.random() * 0.004
+            };
+        }
+
+        // Burbujas dinámicas para la estación 3 (Tanque de Aireación)
+        function createAerationBubbles() {
+            const bubbleGeo = new THREE.SphereGeometry(0.05, 6, 6);
+            const bubbleMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
+
+            for (let i = 0; i < 30; i++) {
+                const bubble = new THREE.Mesh(bubbleGeo, bubbleMat);
+                bubble.position.set(2 + (Math.random() - 0.5) * 1.8, -0.8 + Math.random() * 1.2, (Math.random() - 0.5) * 1.8);
+                bubble.userData = {
+                    speed: 0.02 + Math.random() * 0.02,
+                    maxY: 0.5
+                };
+                scene.add(bubble);
+                aerationBubbles.push(bubble);
+            }
+        }
+
+        // Haces de luz UV dinámicos para la estación 4 (Desinfección Terciaria)
+        function createUVBeams() {
+            const beamGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.6, 8);
+            const beamMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.6 });
+
+            for (let i = 0; i < 6; i++) {
+                const beam = new THREE.Mesh(beamGeo, beamMat);
+                beam.position.set(5.3 + (i % 3) * 0.7, 0.2, -0.5 + Math.floor(i / 3) * 1.0);
+                scene.add(beam);
+                uvBeams.push(beam);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isFlowRunning) {
+                // Animar partículas de agua
+                particles.forEach(p => {
+                    p.userData.progress += p.userData.speed;
+                    if (p.userData.progress > 1) {
+                        resetParticle(p);
+                    } else {
+                        p.position.x = -6 + (p.userData.progress * 12);
+                        // Cambio gradual de color de agua según la etapa
+                        if (p.position.x < -2) {
+                            p.material.color.setHex(0x854d0e); // Pretratamiento (marrón oscuro)
+                        } else if (p.position.x < 2) {
+                            p.material.color.setHex(0xd97706); // Primario (marrón claro)
+                        } else if (p.position.x < 5) {
+                            p.material.color.setHex(0x0284c7); // Secundario (azul biológico)
+                        } else {
+                            p.material.color.setHex(0x38bdf8); // Terciario UV (azul cristalino)
+                        }
+                    }
+                });
+
+                // Animar burbujas de aireación
+                aerationBubbles.forEach(b => {
+                    b.position.y += b.userData.speed;
+                    if (b.position.y > 0.4) {
+                        b.position.y = -0.8;
+                    }
+                });
+
+                // Animar pulsación de luces UV
+                uvBeams.forEach((beam, idx) => {
+                    beam.material.opacity = 0.3 + Math.sin(Date.now() * 0.005 + idx) * 0.3;
+                });
+            }
+
+            // Animación suave de la cámara al hacer clic en estaciones
+            if (isAnimatingCamera) {
+                camera.position.lerp(targetCamPos, 0.06);
+                controls.target.lerp(targetLookAt, 0.06);
+                if (camera.position.distanceTo(targetCamPos) < 0.1) {
+                    isAnimatingCamera = false;
+                }
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        // Cambiar de estación enfocando la cámara y actualizando la tarjeta de información
+        function focusStage(index) {
+            currentSelectedStage = index;
+            const data = stagesData[index];
+            
+            document.getElementById('stageBadge').innerText = `Estación ${index + 1}`;
+            document.getElementById('stageTitle').innerText = data.title;
+            document.getElementById('stageDesc').innerText = data.desc;
+            document.getElementById('stagePrinciple').innerText = data.principle;
+            document.getElementById('stageEfficiency').innerText = data.efficiency;
+            document.getElementById('stageIcon').className = `fa-solid ${data.icon} text-xl`;
+
+            const tankXPositions = [-6, -2, 2, 6];
+            targetCamPos.set(tankXPositions[index], 3, 6.5);
+            targetLookAt.set(tankXPositions[index], 0, 0);
+            isAnimatingCamera = true;
+        }
+
+        // Control de Flujo (Pausar / Iniciar)
+        function toggleFlow() {
+            isFlowRunning = !isFlowRunning;
+            const btnText = document.getElementById('flowText');
+            const btnIcon = document.getElementById('flowIcon');
+            if (isFlowRunning) {
+                btnText.innerText = "Pausar Simulación";
+                btnIcon.className = "fa-solid fa-pause";
+            } else {
+                btnText.innerText = "Iniciar Flujo";
+                btnIcon.className = "fa-solid fa-play";
+            }
+        }
+
+        // Actualización dinámica de parámetros y cálculos fisicoquímicos
+        function updateParameters() {
+            const flowRate = document.getElementById('flowRateSlider').value;
+            const aeration = document.getElementById('aerationSlider').value;
+            const disinfectant = document.getElementById('disinfectantSlider').value;
+
+            document.getElementById('flowRateVal').innerText = flowRate + " L/s";
+            document.getElementById('aerationVal').innerText = aeration + " %";
+            document.getElementById('disinfectantVal').innerText = disinfectant + " mg/L";
+
+            let dboOut = Math.max(3, Math.round(35 - (aeration * 0.25) - (disinfectant * 0.8)));
+            let turbidity = Math.max(0.4, (3.5 - (disinfectant * 0.25) - (aeration * 0.01)).toFixed(1));
+            let efficiency = Math.min(99.4, (88 + (aeration * 0.08) + (disinfectant * 0.3)).toFixed(1));
+            let energy = (25 + (flowRate * 0.35) + (aeration * 0.15)).toFixed(1);
+
+            document.getElementById('dboOutVal').innerHTML = `${dboOut} <span class="text-xs font-normal text-slate-400">mg/L</span>`;
+            document.getElementById('turbidityVal').innerHTML = `${turbidity} <span class="text-xs font-normal text-slate-400">NTU</span>`;
+            document.getElementById('efficiencyVal').innerHTML = `${efficiency} <span class="text-xs font-normal text-slate-400">%</span>`;
+            document.getElementById('energyVal').innerText = `${energy} kWh/m³`;
+        }
+
+        // Funciones del Modal Guía Científica
+        function openInfoModal() {
+            document.getElementById('infoModal').classList.remove('hidden');
+        }
+        function closeInfoModal() {
+            document.getElementById('infoModal').classList.add('hidden');
+        }
+
+        // Inicialización al cargar la ventana
+        window.onload = function () {
+            initThreeJS();
+        };
+    </script>
+</body>
+</html>
+```          
